@@ -1,0 +1,20 @@
+{
+    "hostname": "127.0.0.1",
+    "domain": "localhost.com",
+    "etcHosts": {
+        "file": "/etc/hosts"
+    },
+    "vconf":{
+        "file": "/Applications/XAMPP/etc/extra/httpd-vhosts.conf",
+        "VirtualHost" : "{subdomain}.{domain}:80",
+        "params": {
+            "DocumentRoot" : "/Volumes/Home/Sites/{subdomain}",
+            "ServerName": "{subdomain}.{domain}",
+            "Directory" : [{
+                "_value" : "/Volumes/Home/Sites/{subdomain}",
+                "Order" : "allow,deny",
+                "Allow" : "from all"
+            }]
+        }
+    }
+}
