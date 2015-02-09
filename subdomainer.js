@@ -20,6 +20,7 @@ var subdomainer = module.exports = function (settingsFile) {
             console.error(err);
             return false;
         });
+        console.log("Added to "+ settings.etcHosts.file + ":\n" + hostLine+"\n");
         return true;
     };
 
@@ -29,18 +30,18 @@ var subdomainer = module.exports = function (settingsFile) {
      * @param params
      */
     var addVhost = function (subdomain, params) {
-        var tagReplacer = function(string){
+        var tagReplacer = function (string) {
             string = string
-                            .replace("{subdomain}", subdomain)
-                            .replace("{domain}", settings.domain);
+                .replace("{subdomain}", subdomain)
+                .replace("{domain}", settings.domain);
             //@TODO possibly add more params
             return string;
         };
-        var block = function(blockname, blockValue, params){
+        var block = function (blockname, blockValue, params) {
             blockValue = tagReplacer(blockValue);
             var _block = util.format('\n<%s "%s">{{params}}</%s>\n', blockname, blockValue, blockname);
             var _params = "\n";
-            if(typeof params._value !== 'undefined')
+            if (typeof params._value !== 'undefined')
                 delete params._value;
             for (var param in params) {
                 if (params.hasOwnProperty(param)) {
@@ -57,10 +58,10 @@ var subdomainer = module.exports = function (settingsFile) {
                             default :
                                 placeholder += "%s"; //default formatting
                         }
-                        params[param] = tagReplacer( params[param] );
+                        params[param] = tagReplacer(params[param]);
                         _params += "\t" + util.format(placeholder, param, params[param]) + "\n";
-                    } else if( Object.prototype.toString.call( params[param] ) === '[object Array]' ) {
-                        for(var p in params[param]){
+                    } else if (Object.prototype.toString.call(params[param]) === '[object Array]') {
+                        for (var p in params[param]) {
                             _params += block(param, params[param][p]._value, params[param][p]);
                         }
                     } else {
@@ -71,19 +72,17 @@ var subdomainer = module.exports = function (settingsFile) {
             _block = _block.replace("{{params}}", _params);
             return _block;
         };
-        /*for (var _prefix in settings.vconf.prefixes) {
-            var prefix = settings.vconf.prefixes[_prefix];
-            if (prefix != "") prefix += ".";*/
-            var virtualHost = tagReplacer( settings.vconf.VirtualHost );
-            var vhost = block("VirtualHost", virtualHost, settings.vconf.params);
-            console.log(vhost);
-            fs.appendFile(settings.vconf.file, vhost, function (err) {
-                console.error(err);
-                return false;
-            });
-        //}
+        var virtualHost = tagReplacer(settings.vconf.VirtualHost);
+        var vhost = block("VirtualHost", virtualHost, settings.vconf.params);
+        console.log(vhost);
+        fs.appendFile(settings.vconf.file, vhost, function (err) {
+            console.error(err);
+            return false;
+        });
+        console.log("Added to "+ settings.vconf.file + ":\n" + vhost + "\n");
         return true;
     };
+
     /**
      * Add another subdomain
      * @param subdomain
